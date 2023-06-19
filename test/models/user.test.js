@@ -8,6 +8,7 @@ describe('testing User Model', () => {
                     id: 1,
                     name: "João Oliveira",
                     job: "Desenvolvedor",
+                    permissions: [],
                     read_count: 0
                 }
             ])
@@ -21,6 +22,7 @@ describe('testing User Model', () => {
                     id: 2,
                     name: "New User",
                     job: "Developer",
+                    permissions: [],
                     read_count: 0
                 }
             )
@@ -33,6 +35,7 @@ describe('testing User Model', () => {
                 id: 1,
                 name: "João Oliveira",
                 job: "Desenvolvedor",
+                permissions: [],
                 read_count: 1
             })
         });
@@ -49,6 +52,7 @@ describe('testing User Model', () => {
                 id: 2,
                 name: "New User",
                 job: "Developer",
+                permissions: [],
                 read_count: 0
             }])
         });
@@ -58,6 +62,7 @@ describe('testing User Model', () => {
                 id: 2,
                 name: "New User",
                 job: "Developer",
+                permissions: [],
                 read_count: 0
             }])
         });
@@ -69,12 +74,14 @@ describe('testing User Model', () => {
                 id: 2,
                 name: "Updated Name",
                 job: "Senior Developer",
+                permissions: [],
                 read_count: 0
             })
             expect(model.getAll()).toStrictEqual([{
                 id: 2,
                 name: "Updated Name",
                 job: "Senior Developer",
+                permissions: [],
                 read_count: 0
             }])
         });
@@ -95,4 +102,15 @@ describe('testing User Model', () => {
             expect(model.readCountByUserName('i do not exist')).toBe(false)
         })
     });
+
+    describe('generateToken', () => {
+        test('for a correct user name and id, should return true', () => {
+            expect(model.generateToken(2, 'Updated Name')).toBe(true);
+        })
+        test('if user name or id is incorret, should return false', () => {
+            expect(model.generateToken(2, 'Wrong Name')).toBe(false);
+            expect(model.generateToken(1, 'Updated Name')).toBe(false);
+            expect(model.generateToken(3, '')).toBe(false);
+        })
+    })
 });

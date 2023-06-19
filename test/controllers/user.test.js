@@ -19,6 +19,7 @@ describe('testing User Controller', () => {
                     id: 1,
                     name: "João Oliveira",
                     job: "Desenvolvedor",
+                    permissions: [],
                     read_count: 0
                 }
             ]);
@@ -82,7 +83,7 @@ describe('testing User Controller', () => {
             controller.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith({ name: 'John', job: 'developer', read_count: 0, id: 2 });
+            expect(res.json).toHaveBeenCalledWith({ name: 'John', job: 'developer', read_count: 0, permissions: [], id: 2 });
         });
         test('not passing name or job fields, should return status 400 and an error message.', () => {
             const req = { body: { name: 'John' } };
@@ -139,9 +140,6 @@ describe('testing User Controller', () => {
             expect(res.json).toHaveBeenCalledWith({ error: 'User not found.' });
 
         });
-        test('trying to delete another user as an user without permission: should return status 403 and an error message.', () => {
-
-        });
     });
 
     describe('updateById', () => {
@@ -165,6 +163,7 @@ describe('testing User Controller', () => {
                 name: 'New name',
                 job: 'new job',
                 id: 2,
+                permissions: [],
                 read_count: 0
             });
 
@@ -213,9 +212,6 @@ describe('testing User Controller', () => {
 
         });
 
-        test('trying to update another user as an user without permission: should return status 403 and an error message.', () => {
-
-        });
     });
 
     describe('readCountByUserName', () => {
@@ -245,8 +241,58 @@ describe('testing User Controller', () => {
             controller.readCountByUserName(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({error: 'User not found.'});
+            expect(res.json).toHaveBeenCalledWith({ error: 'User not found.' });
 
         });
     });
+
+    describe('generateToken', () => {
+        test('corret user id and name, should return a token', () => {
+            const req = {
+                body: {
+                    name: 'New name',
+                    id: 2}
+            };
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+
+            
+            controller.generateToken(req, res);
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        test('incorret user id or name, should return an error message.', () => {
+            const req = {
+                body: {
+                    name: 'wrong name',
+                    id: 2}
+            };
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            };
+
+            controller.generateToken(req, res);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({error: 'Invalid user id or name.'});
+        });
+
+        test('incorret format of user id or name, should return an error message.', () => {
+            const req = {
+                body: {
+                    name: 'name',
+                    id: 't'}
+            };
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            };
+
+            controller.generateToken(req, res);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({'error': 'parameter \'name\' should be a string and \'id\' should be a number.'});
+        })
+    })
 });

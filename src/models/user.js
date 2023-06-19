@@ -1,11 +1,15 @@
-const data = [
+const jwt = require('jsonwebtoken');
+const data = [ // stores user data
     {
         id: 1,
         name: "João Oliveira",
         job: "Desenvolvedor",
-        read_count: 0
+        read_count: 0,
+        permissions: []
     }
 ]
+
+const tokens = {}; // stores user tokens in format: <user_id> : <token>
 
 function getByName(name) {
     user = data.find(user => user.name === name);
@@ -19,14 +23,15 @@ function getAll() {
     return data;
 };
 
-function create(name, job) {
+function create(name, job, permissions) {
     last_user = data[data.length - 1];
     new_id = last_user ? last_user.id + 1 : 1;
     var new_user = {
         name: name,
         job: job,
         id: new_id,
-        read_count: 0
+        read_count: 0,
+        permissions: permissions ? permissions : []
     }
 
     data.push(new_user)
@@ -58,11 +63,33 @@ function readCountByUserName(name) {
     return user ? user.read_count : false;
 };
 
+function generateToken(id, name) {
+    user = data.find(user => user.id === id)
+    if (user && user.name === name) {
+        const token = jwt.sign(
+            {
+                id: id
+            }, process.env.JWT_SECRET,
+            {
+                expiresIn: '1h'
+            }
+        )
+        tokens[id] = token; // storing token
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 module.exports = {
     getByName,
     getAll,
     create,
     deleteByName,
     updateById,
-    readCountByUserName
+    readCountByUserName,
+    data,
+    tokens,
+    generateToken
 };
